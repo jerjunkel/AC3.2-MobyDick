@@ -28,13 +28,32 @@
                 background-color: powderblue;
                 padding: 10px;
             }
+        
+        .highlight{
+            background: yellow;
+            padding: 3px;
+        }
         </style>
+        
         
         <!-- Our custom scripts -->
         <script>
         function sendInfoToSwift(obj) {
             window.webkit.messageHandlers.runSwift.postMessage({ color : obj.style.backgroundColor, width : obj.offsetWidth });
         }
+        
+        <!--
+        function highlightText(text){
+            var textInContainer = document.getElementsByClassName('container');
+            for (int i = 0; i<textInContainer.length; i++){
+                window.alert("Found!!")
+
+                if text == textInContainer[i]{
+                                    }
+            }
+        }
+        
+        -->
         </script>
         
     </head>

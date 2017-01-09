@@ -31,6 +31,12 @@ function postProcess() {
     // it's a little less safe than the one above because it doesn't limit to a particular
     // set of tags. Be careful not to replace html code!
     // $("body").html($("body").html().replace(/water/ig,'mizu'));
+    
+    //Replaces all occurances of "ship" with and image
+    $("p").each(function() {
+                //$(this)
+                $(this).html($(this).html().replace(/ship/ig, '<img src = "https://cdn2.iconfinder.com/data/icons/travel-set-2/512/5-512.png", height = 20, width = 20>'));
+                });
 
 
     // this is where you should add/change the Javascript you write

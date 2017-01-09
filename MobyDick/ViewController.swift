@@ -9,21 +9,23 @@
 import UIKit
 import WebKit
 
-class ViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler {
+class ViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler, WKNavigationDelegate {
     var webView: WKWebView!
     let divColors = ["red", "green", "blue", "purple"]
- 
+    
+    @IBOutlet weak var textToChangeTextfield: UITextField!
+    @IBOutlet weak var textToReplaceWithTextField: UITextField!
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         setupWebView()
-    
+        
         let path = Bundle.main.path(forResource: "embedded", ofType: "html")
         let dir = URL(fileURLWithPath: Bundle.main.bundlePath)
         let myURL = URL(fileURLWithPath: path!)
         webView.loadFileURL(myURL, allowingReadAccessTo: dir)
     }
-
+    
     private func setupWebView() {
         let webConfiguration = WKWebViewConfiguration()
         let userContentController = WKUserContentController()
@@ -46,6 +48,7 @@ class ViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler {
         
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.uiDelegate = self
+        webView.navigationDelegate = self
         
         if let containerView = view.viewWithTag(1) {
             containerView.addSubview(webView)
@@ -57,6 +60,8 @@ class ViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler {
         }
     }
     
+    
+    //MARK:- Button Actions
     // I've taken the div squares out of the HTML document so this segmented control currently does nothing.
     // Repurpose it to change the background color of the document
     //
@@ -64,13 +69,50 @@ class ViewController: UIViewController, WKUIDelegate, WKScriptMessageHandler {
     @IBAction func colorChosen(_ sender: UISegmentedControl) {
         let color = divColors[sender.selectedSegmentIndex]
         
-        var js = "document.getElementById('box').style.backgroundColor = '\(color)';";
-        js += "document.getElementById('box').innerHTML = '\(color)'"
+        let js = "document.body.style.background = '\(color)';"
+        // js += "document.getElementById('box').innerHTML = '\(color)'"
         webView.evaluateJavaScript(js) { (ret, error) in
             print(ret ?? "whoops")
         }
     }
     
+    @IBAction func navRefresh(_ sender: UIBarButtonItem) {
+        webView.goForward()
+    }
+    @IBAction func navGoForward(_ sender: UIBarButtonItem) {
+        webView.reload()
+    }
+    @IBAction func navGoBack(_ sender: UIBarButtonItem) {
+        webView.goBack()
+    }
+    @IBAction func replaceText(_ sender: UIButton) {
+        let textToReplace = textToChangeTextfield.text?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let textToReplaceWith = textToReplaceWithTextField.text?.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        
+        if textToReplaceWith != "" && textToReplace != ""{
+            
+            print("Replace \(textToReplace) with \(textToReplaceWith)")
+            var js = "document.body.innerHTML = document.body.innerHTML.replace('\(textToReplace!)','\(textToReplaceWith!)');"
+            //js += "document.highlightText();"
+            webView.evaluateJavaScript(js) { (ret, error) in
+                print(error?.localizedDescription)
+                print(ret ?? "whoops")
+            }
+            
+        }else{
+            showAlert()
+        }
+        
+        
+    }
+    
+    func showAlert(){
+        
+        let alert: UIAlertController = UIAlertController(title: "", message: "Textfields cannot be empty", preferredStyle: .alert)
+        let dismiss: UIAlertAction = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alert.addAction(dismiss)
+        present(alert, animated: true, completion: nil)
+    }
     // Not using this for this Homework assignment
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         print("Received message named: \(message.name)")
